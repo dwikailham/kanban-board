@@ -1,20 +1,32 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import CardItem from '../CardItem'
+import axios from 'axios'
+
 
 export default function CardGroup() {
 
-    const dummy = [
-        { colorCard: "#EB2F96", titleGroup: "Group Task 1" },
-        { colorCard: "#7B61FF", titleGroup: "Group Task 2" },
-        { colorCard: "#2F54EB", titleGroup: "Group Task 3" },
-        { colorCard: "#52C41A", titleGroup: "Group Task 4" }
-    ]
+    const [groupTodo, setGroupTodo] = useState([])
+
+    function getGroupTodo() {
+        axios.get("https://todos-project-api.herokuapp.com/todos", {
+            headers: {
+                Authorization: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE2NjQyODYwMTl9.weYLh9Fx6lR09b6sGisklLc3zVosmhvLdt1RWR7LKFg"
+            }
+        })
+            .then(res => setGroupTodo(res.data))
+            .catch(err => console.log(err))
+    }
+
+    useEffect(() => {
+        getGroupTodo()
+    }, [])
+
 
     return (
-        <div className='flex'>
+        <div className='flex flex-wrap'>
             {
-                dummy.map((el, i) => (
-                    <CardItem colorCard={el.colorCard} titleGroup={el.titleGroup} />
+                groupTodo.map((el, i) => (
+                    <CardItem colorCard={el.title} idTodoGroup={el.id} titleGroup={el.title} description={el.description} />
                 ))
             }
         </div>

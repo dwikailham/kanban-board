@@ -1,91 +1,83 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { Progress } from 'antd';
+import axios from 'axios'
+import ModalClick from '../Modal';
 
-export default function CardItem({ colorCard, titleGroup }) {
+export default function CardItem({ colorCard, titleGroup, description, idTodoGroup }) {
+    const [itemTodo, setItemTodo] = useState([])
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const color =
+    {
+        "Task 1": { border: "#EB2F96", bg: "#FFF9FB" },
+        "Task 2": { border: "#7B61FF", bg: "#FCFAFD" },
+        "Task 3": { border: "#2F54EB", bg: "#F7FAFF" },
+        "Task 4": { border: "#52C41A", bg: "#F8FEF1" }
+    }
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    function getTodoItem() {
+        axios.get(`https://todos-project-api.herokuapp.com/todos/${idTodoGroup}/items`, {
+            headers: {
+                Authorization: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE2NjQyODYwMTl9.weYLh9Fx6lR09b6sGisklLc3zVosmhvLdt1RWR7LKFg"
+            }
+        })
+            .then(res => setItemTodo(res.data))
+            .catch(err => console.log(err))
+    }
+
+    useEffect(() => {
+        getTodoItem()
+    }, [idTodoGroup])
+
     return (
-        <div className='grid grid-cols-4 gap-5 my-5'>
-            <div className={`border-2 rounded-md w-[306px] h-auto p-2 bg-[#FFF9FB] mr-3`} style={{ borderColor: colorCard }}>
-                <h3 className={`text-sm border-2 inline-block py-1 px-2 rounded-md bg-[#FFF9FB]`} style={{ borderColor: colorCard, color: colorCard }}>
+        <div className='mb-3'>
+            <div className={`border-2 rounded-md w-[306px] h-auto p-2 mr-3`} style={{ borderColor: color[colorCard]?.border || 'black', background: color[colorCard]?.bg }}>
+                <h3 className={`text-sm border-2 inline-block py-1 px-2 rounded-md`} style={{ borderColor: color[colorCard]?.border || 'black', color: color[colorCard] || 'black' }}>
                     {titleGroup}
                 </h3>
-                <h3 className="my-1 text-sm text-black font-bold">January - March</h3>
-                <div className="bg-white border-2 border-gray-200 font-bold p-3 rounded-lg">
-                    <h3>Re-designed the zero-g doggie bags. No more spills!</h3>
-                    <div className="flex mt-5 justify-between">
-                        <div className="flex items-center">
-                            <svg
-                                width="90"
-                                height="8"
-                                viewBox="0 0 90 8"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="mr-2"
-                            >
-                                <rect width="90" height="8" rx="4" fill="#52C41A" />
-                            </svg>
-                            <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 14 14"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M7 0C3.13438 0 0 3.13438 0 7C0 10.8656 3.13438 14 7 14C10.8656 14 14 10.8656 14 7C14 3.13438 10.8656 0 7 0ZM10.0234 4.71406L6.73281 9.27656C6.68682 9.34076 6.62619 9.39306 6.55595 9.42914C6.48571 9.46523 6.40787 9.48405 6.32891 9.48405C6.24994 9.48405 6.17211 9.46523 6.10186 9.42914C6.03162 9.39306 5.97099 9.34076 5.925 9.27656L3.97656 6.57656C3.91719 6.49375 3.97656 6.37813 4.07812 6.37813H4.81094C4.97031 6.37813 5.12187 6.45469 5.21562 6.58594L6.32812 8.12969L8.78438 4.72344C8.87813 4.59375 9.02812 4.51562 9.18906 4.51562H9.92188C10.0234 4.51562 10.0828 4.63125 10.0234 4.71406V4.71406Z"
-                                    fill="#52C41A"
-                                />
-                            </svg>
-                        </div>
-                        <div className="flex items-center">
-                            <svg
-                                width="16"
-                                height="4"
-                                viewBox="0 0 16 4"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M0.125 1.97656C0.125 2.14892 0.158949 2.3196 0.224908 2.47884C0.290867 2.63807 0.387546 2.78276 0.509422 2.90464C0.631299 3.02652 0.775988 3.12319 0.935228 3.18915C1.09447 3.25511 1.26514 3.28906 1.4375 3.28906C1.60986 3.28906 1.78053 3.25511 1.93977 3.18915C2.09901 3.12319 2.2437 3.02652 2.36558 2.90464C2.48745 2.78276 2.58413 2.63807 2.65009 2.47884C2.71605 2.3196 2.75 2.14892 2.75 1.97656C2.75 1.8042 2.71605 1.63353 2.65009 1.47429C2.58413 1.31505 2.48745 1.17036 2.36558 1.04848C2.2437 0.926608 2.09901 0.82993 1.93977 0.763971C1.78053 0.698012 1.60986 0.664063 1.4375 0.664063C1.26514 0.664063 1.09447 0.698012 0.935228 0.763971C0.775988 0.82993 0.631299 0.926608 0.509422 1.04848C0.387546 1.17036 0.290867 1.31505 0.224908 1.47429C0.158949 1.63353 0.125 1.8042 0.125 1.97656ZM6.6875 1.97656C6.6875 2.32466 6.82578 2.6585 7.07192 2.90464C7.31806 3.15078 7.6519 3.28906 8 3.28906C8.3481 3.28906 8.68194 3.15078 8.92808 2.90464C9.17422 2.6585 9.3125 2.32466 9.3125 1.97656C9.3125 1.62847 9.17422 1.29463 8.92808 1.04848C8.68194 0.802343 8.3481 0.664062 8 0.664063C7.6519 0.664062 7.31806 0.802343 7.07192 1.04848C6.82578 1.29463 6.6875 1.62847 6.6875 1.97656ZM13.25 1.97656C13.25 2.32466 13.3883 2.6585 13.6344 2.90464C13.8806 3.15078 14.2144 3.28906 14.5625 3.28906C14.9106 3.28906 15.2444 3.15078 15.4906 2.90464C15.7367 2.6585 15.875 2.32466 15.875 1.97656C15.875 1.62847 15.7367 1.29463 15.4906 1.04848C15.2444 0.802343 14.9106 0.664062 14.5625 0.664063C14.2144 0.664062 13.8806 0.802343 13.6344 1.04848C13.3883 1.29463 13.25 1.62847 13.25 1.97656Z"
-                                    fill="#828282"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+                <h3 className="my-1 text-sm text-black font-bold">{description}</h3>
+                {
+                    itemTodo.length > 0 ?
+                        itemTodo.map((el, i) => (
+                            <div className="bg-white border-2 border-gray-200 font-bold p-3 rounded-lg mt-2">
+                                <h3>{el.name}</h3>
+                                <div className="flex justify-between mt-5">
+                                    <Progress className='w-1/2' percent={el.progress_percentage} size="small" />
+                                    <div className="flex items-center">
+                                        <svg
+                                            width="16"
+                                            height="4"
+                                            viewBox="0 0 16 4"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                d="M0.125 1.97656C0.125 2.14892 0.158949 2.3196 0.224908 2.47884C0.290867 2.63807 0.387546 2.78276 0.509422 2.90464C0.631299 3.02652 0.775988 3.12319 0.935228 3.18915C1.09447 3.25511 1.26514 3.28906 1.4375 3.28906C1.60986 3.28906 1.78053 3.25511 1.93977 3.18915C2.09901 3.12319 2.2437 3.02652 2.36558 2.90464C2.48745 2.78276 2.58413 2.63807 2.65009 2.47884C2.71605 2.3196 2.75 2.14892 2.75 1.97656C2.75 1.8042 2.71605 1.63353 2.65009 1.47429C2.58413 1.31505 2.48745 1.17036 2.36558 1.04848C2.2437 0.926608 2.09901 0.82993 1.93977 0.763971C1.78053 0.698012 1.60986 0.664063 1.4375 0.664063C1.26514 0.664063 1.09447 0.698012 0.935228 0.763971C0.775988 0.82993 0.631299 0.926608 0.509422 1.04848C0.387546 1.17036 0.290867 1.31505 0.224908 1.47429C0.158949 1.63353 0.125 1.8042 0.125 1.97656ZM6.6875 1.97656C6.6875 2.32466 6.82578 2.6585 7.07192 2.90464C7.31806 3.15078 7.6519 3.28906 8 3.28906C8.3481 3.28906 8.68194 3.15078 8.92808 2.90464C9.17422 2.6585 9.3125 2.32466 9.3125 1.97656C9.3125 1.62847 9.17422 1.29463 8.92808 1.04848C8.68194 0.802343 8.3481 0.664062 8 0.664063C7.6519 0.664062 7.31806 0.802343 7.07192 1.04848C6.82578 1.29463 6.6875 1.62847 6.6875 1.97656ZM13.25 1.97656C13.25 2.32466 13.3883 2.6585 13.6344 2.90464C13.8806 3.15078 14.2144 3.28906 14.5625 3.28906C14.9106 3.28906 15.2444 3.15078 15.4906 2.90464C15.7367 2.6585 15.875 2.32466 15.875 1.97656C15.875 1.62847 15.7367 1.29463 15.4906 1.04848C15.2444 0.802343 14.9106 0.664062 14.5625 0.664063C14.2144 0.664062 13.8806 0.802343 13.6344 1.04848C13.3883 1.29463 13.25 1.62847 13.25 1.97656Z"
+                                                fill="#828282"
+                                            />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                        :
+                        (<div className="bg-white text-neutral-300 border-2 border-gray-200  p-3 rounded-lg">
+                            <h3 className="">No Task Available</h3>
+                            <div className="flex mt-5 justify-between">
+                                <div className="flex items-center">
+                                </div>
+                            </div>
+                        </div>)}
 
-                <div className="bg-white border-2 border-gray-200 font-bold p-3 rounded-lg mt-2">
-                    <h3>Bundle interplanetary analytics for improved transmission</h3>
-                    <div className="flex mt-5 justify-between">
-                        <div className="flex items-center">
-                            <svg
-                                width="81"
-                                height="8"
-                                viewBox="0 0 81 8"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="mr-2"
-                            >
-                                <rect width="81" height="8" rx="4" fill="#F5F5F5" />
-                                <rect width="64.8" height="8" rx="4" fill="#1890FF" />
-                            </svg>
-                            <p className="text-gray-600 font-light">80%</p>
-                        </div>
-                        <div className="flex items-center">
-                            <svg
-                                width="16"
-                                height="4"
-                                viewBox="0 0 16 4"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M0.125 1.97656C0.125 2.14892 0.158949 2.3196 0.224908 2.47884C0.290867 2.63807 0.387546 2.78276 0.509422 2.90464C0.631299 3.02652 0.775988 3.12319 0.935228 3.18915C1.09447 3.25511 1.26514 3.28906 1.4375 3.28906C1.60986 3.28906 1.78053 3.25511 1.93977 3.18915C2.09901 3.12319 2.2437 3.02652 2.36558 2.90464C2.48745 2.78276 2.58413 2.63807 2.65009 2.47884C2.71605 2.3196 2.75 2.14892 2.75 1.97656C2.75 1.8042 2.71605 1.63353 2.65009 1.47429C2.58413 1.31505 2.48745 1.17036 2.36558 1.04848C2.2437 0.926608 2.09901 0.82993 1.93977 0.763971C1.78053 0.698012 1.60986 0.664063 1.4375 0.664063C1.26514 0.664063 1.09447 0.698012 0.935228 0.763971C0.775988 0.82993 0.631299 0.926608 0.509422 1.04848C0.387546 1.17036 0.290867 1.31505 0.224908 1.47429C0.158949 1.63353 0.125 1.8042 0.125 1.97656ZM6.6875 1.97656C6.6875 2.32466 6.82578 2.6585 7.07192 2.90464C7.31806 3.15078 7.6519 3.28906 8 3.28906C8.3481 3.28906 8.68194 3.15078 8.92808 2.90464C9.17422 2.6585 9.3125 2.32466 9.3125 1.97656C9.3125 1.62847 9.17422 1.29463 8.92808 1.04848C8.68194 0.802343 8.3481 0.664062 8 0.664063C7.6519 0.664062 7.31806 0.802343 7.07192 1.04848C6.82578 1.29463 6.6875 1.62847 6.6875 1.97656ZM13.25 1.97656C13.25 2.32466 13.3883 2.6585 13.6344 2.90464C13.8806 3.15078 14.2144 3.28906 14.5625 3.28906C14.9106 3.28906 15.2444 3.15078 15.4906 2.90464C15.7367 2.6585 15.875 2.32466 15.875 1.97656C15.875 1.62847 15.7367 1.29463 15.4906 1.04848C15.2444 0.802343 14.9106 0.664062 14.5625 0.664063C14.2144 0.664062 13.8806 0.802343 13.6344 1.04848C13.3883 1.29463 13.25 1.62847 13.25 1.97656Z"
-                                    fill="#828282"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex mt-2 items-center">
+                <div className="flex mt-2 items-center cursor-pointer" onClick={() => setIsModalOpen(true)}>
                     <svg
                         width="20"
                         height="21"
@@ -106,6 +98,11 @@ export default function CardItem({ colorCard, titleGroup }) {
                     <p className="">New Task</p>
                 </div>
             </div>
+            <ModalClick
+                isModalOpen={isModalOpen}
+                handleOk={handleOk}
+                handleCancel={handleCancel}
+            />
         </div>
     )
 }
