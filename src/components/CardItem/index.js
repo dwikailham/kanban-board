@@ -3,8 +3,8 @@ import React from 'react'
 export default function CardItem({ colorCard, titleGroup }) {
     return (
         <div className='grid grid-cols-4 gap-5 my-5'>
-            <div className={`border-2 border-[${colorCard}] rounded-md w-[306px] h-auto p-2 bg-[#FFF9FB] mr-3`}>
-                <h3 className={`text-sm text-[${colorCard}] border-2 border-[${colorCard}] inline-block py-1 px-2 rounded-md bg-[#FFF9FB]`}>
+            <div className={`border-2 rounded-md w-[306px] h-auto p-2 bg-[#FFF9FB] mr-3`} style={{ borderColor: colorCard }}>
+                <h3 className={`text-sm border-2 inline-block py-1 px-2 rounded-md bg-[#FFF9FB]`} style={{ borderColor: colorCard, color: colorCard }}>
                     {titleGroup}
                 </h3>
                 <h3 className="my-1 text-sm text-black font-bold">January - March</h3>
