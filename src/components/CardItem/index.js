@@ -8,9 +8,10 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
     const [itemTodo, setItemTodo] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [nameItem, setNameItem] = useState("");
-    const [progressItem, setProgressItem] = useState(0)
+    const [progressItem, setProgressItem] = useState("")
     const [loadingButton, setLoadingButton] = useState(false)
-
+    const [titleModal, setTitleModal] = useState("")
+    const [idTodoItem, setIdTodoItem] = useState("")
 
     const color =
     {
@@ -23,6 +24,26 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
     const handleCancel = () => {
         setIsModalOpen(false);
     };
+
+    function deleteTodoItem() {
+        axios.delete(`https://todos-project-api.herokuapp.com/todos/${idTodoGroup}/items/${idTodoItem}`, {
+            headers: {
+                Authorization: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE2NjQyODYwMTl9.weYLh9Fx6lR09b6sGisklLc3zVosmhvLdt1RWR7LKFg"
+            }
+        }).then(res => {
+            getTodoItem()
+            notification["success"]({
+                message: "Deleted",
+                description: 'Task Deleted Successfull',
+            });
+
+        }).catch(err => {
+            Modal.error({
+                title: err.code,
+                content: err.message,
+            });
+        })
+    }
 
     function getTodoItem() {
         axios.get(`https://todos-project-api.herokuapp.com/todos/${idTodoGroup}/items`, {
@@ -78,11 +99,27 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
             label: 'Edit',
             key: '1',
             icon: <EditOutlined />,
+            func: () => {
+                setTitleModal("Edit Task")
+                setIsModalOpen(true)
+            },
         },
         {
             label: 'Delete',
             key: '2',
             icon: <DeleteOutlined />,
+            func: () => {
+                Modal.confirm({
+                    title: "Delete Task",
+                    content: "Are you sure want to delete this task? your action can't be reverted",
+                    okText: 'Delete',
+                    cancelText: 'Cancel',
+                    okType: 'danger',
+                    onOk() {
+                        deleteTodoItem()
+                    }
+                });
+            }
         }
     ]
 
@@ -92,7 +129,7 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
         >
             {
                 optionSort.map((el, i) => (
-                    <Menu.Item icon={el.icon}>
+                    <Menu.Item icon={el.icon} onMouseDown={el.func}>
                         {el.label}
                     </Menu.Item>
                 ))
@@ -120,7 +157,13 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                                 <div className="flex justify-between mt-5">
                                     <Progress style={{ width: "50%" }} percent={el.progress_percentage} size="small" />
                                     <Dropdown.Button
+                                        trigger={['click']}
                                         overlay={menu}
+                                        onMouseDown={() => {
+                                            setIdTodoItem(el.id)
+                                            setNameItem(el.name)
+                                            setProgressItem(el.progress_percentage)
+                                        }}
                                     >
                                     </Dropdown.Button>
                                 </div>
@@ -138,6 +181,7 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                 <div
                     className="flex mt-2 items-center cursor-pointer"
                     onClick={() => {
+                        setTitleModal("Create Task")
                         setNameItem("")
                         setProgressItem("")
                         setIsModalOpen(true)
@@ -164,6 +208,7 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                 </div>
             </div>
             <ModalClick
+                titleModal={titleModal}
                 loadingButton={loadingButton}
                 progressItem={progressItem}
                 nameItem={nameItem}

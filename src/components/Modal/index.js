@@ -1,14 +1,14 @@
 import React from 'react'
 import { Button, Modal, Form, Input } from 'antd';
 
-export default function ModalClick({ isModalOpen, handleCancel, title = "Create Task", createItem, setNameItem, setProgressItem, nameItem, progressItem, loadingButton }) {
+export default function ModalClick({ isModalOpen, handleCancel, titleModal, createItem, setNameItem, setProgressItem, nameItem, progressItem, loadingButton }) {
 
   const [form] = Form.useForm();
 
   return (
     <div>
       <Modal
-        title={title}
+        title={titleModal}
         open={isModalOpen}
         onOk={createItem}
         onCancel={handleCancel}
