@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Progress } from 'antd';
+import { Progress, Modal, notification } from 'antd';
 import axios from 'axios'
 import ModalClick from '../Modal';
 
 export default function CardItem({ colorCard, titleGroup, description, idTodoGroup }) {
     const [itemTodo, setItemTodo] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [nameItem, setNameItem] = useState("");
+    const [progressItem, setProgressItem] = useState(0)
+    const [loadingButton, setLoadingButton] = useState(false)
+
 
     const color =
     {
@@ -14,10 +18,6 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
         "Task 3": { border: "#2F54EB", bg: "#F7FAFF" },
         "Task 4": { border: "#52C41A", bg: "#F8FEF1" }
     }
-
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
 
     const handleCancel = () => {
         setIsModalOpen(false);
@@ -30,7 +30,46 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
             }
         })
             .then(res => setItemTodo(res.data))
-            .catch(err => console.log(err))
+            .catch(err => {
+                Modal.error({
+                    title: err.code,
+                    content: err.message,
+                });
+            })
+    }
+
+    function createItem() {
+        setLoadingButton(true)
+
+        const request = {
+            name: nameItem,
+            progress_percentage: progressItem
+        }
+
+        axios.post(`https://todos-project-api.herokuapp.com/todos/${idTodoGroup}/items`, request, {
+            headers: {
+                Authorization: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE2NjQyODYwMTl9.weYLh9Fx6lR09b6sGisklLc3zVosmhvLdt1RWR7LKFg"
+            }
+        }).then(res => {
+            setLoadingButton(false)
+            setProgressItem("")
+            setNameItem("")
+            console.log(res)
+            getTodoItem()
+            setIsModalOpen(false)
+            notification["success"]({
+                message: res.statusText,
+                description: 'Task Created Successfull',
+            });
+        }).catch(err => {
+            setLoadingButton(false)
+            setIsModalOpen(false)
+            Modal.error({
+                title: err.code,
+                content: err.message,
+            });
+        })
+
     }
 
     useEffect(() => {
@@ -48,9 +87,9 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                     itemTodo.length > 0 ?
                         itemTodo.map((el, i) => (
                             <div className="bg-white border-2 border-gray-200 font-bold p-3 rounded-lg mt-2">
-                                <h3>{el.name}</h3>
+                                <h3 className='font-bold'>{el.name}</h3>
                                 <div className="flex justify-between mt-5">
-                                    <Progress className='w-1/2' percent={el.progress_percentage} size="small" />
+                                    <Progress style={{ width: "50%" }} percent={el.progress_percentage} size="small" />
                                     <div className="flex items-center">
                                         <svg
                                             width="16"
@@ -70,14 +109,21 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                         ))
                         :
                         (<div className="bg-white text-neutral-300 border-2 border-gray-200  p-3 rounded-lg">
-                            <h3 className="">No Task Available</h3>
+                            <h3 className="text-neutral-300">No Task Available</h3>
                             <div className="flex mt-5 justify-between">
                                 <div className="flex items-center">
                                 </div>
                             </div>
                         </div>)}
 
-                <div className="flex mt-2 items-center cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                <div
+                    className="flex mt-2 items-center cursor-pointer"
+                    onClick={() => {
+                        setNameItem("")
+                        setProgressItem("")
+                        setIsModalOpen(true)
+                    }}
+                >
                     <svg
                         width="20"
                         height="21"
@@ -95,13 +141,18 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                             fill="#262626"
                         />
                     </svg>
-                    <p className="">New Task</p>
+                    <p className="mt-2.5">New Task</p>
                 </div>
             </div>
             <ModalClick
+                loadingButton={loadingButton}
+                progressItem={progressItem}
+                nameItem={nameItem}
                 isModalOpen={isModalOpen}
-                handleOk={handleOk}
                 handleCancel={handleCancel}
+                createItem={createItem}
+                setNameItem={setNameItem}
+                setProgressItem={setProgressItem}
             />
         </div>
     )
