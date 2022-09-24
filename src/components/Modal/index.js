@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Modal, Form, Input } from 'antd';
 
-export default function ModalClick({ isModalOpen, handleCancel, titleModal, createItem, setNameItem, setProgressItem, nameItem, progressItem, loadingButton }) {
+export default function ModalClick({ updateItem, isModalOpen, handleCancel, titleModal, createItem, setNameItem, setProgressItem, nameItem, progressItem, loadingButton }) {
 
   const [form] = Form.useForm();
 
@@ -10,7 +10,7 @@ export default function ModalClick({ isModalOpen, handleCancel, titleModal, crea
       <Modal
         title={titleModal}
         open={isModalOpen}
-        onOk={createItem}
+        onOk={titleModal === "Create Task" ? createItem : updateItem}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
@@ -19,7 +19,7 @@ export default function ModalClick({ isModalOpen, handleCancel, titleModal, crea
           <Button
             type="primary"
             loading={loadingButton}
-            onClick={createItem}
+            onClick={titleModal === "Create Task" ? createItem : updateItem}
             disabled={!nameItem || !progressItem}
           >
             Save Task

@@ -60,6 +60,40 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
             })
     }
 
+    function updateItem() {
+        setLoadingButton(true)
+
+        const request = {
+            target_todo_id: idTodoItem,
+            name: nameItem,
+            progress_percentage: progressItem
+        }
+
+        axios.patch(`https://todos-project-api.herokuapp.com/todos/${idTodoGroup}/items/${idTodoItem}`, request, {
+            headers: {
+                Authorization: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE2NjQyODYwMTl9.weYLh9Fx6lR09b6sGisklLc3zVosmhvLdt1RWR7LKFg"
+            }
+        }).then(res => {
+            setLoadingButton(false)
+            setProgressItem("")
+            setNameItem("")
+            getTodoItem()
+            notification["success"]({
+                message: "Updated",
+                description: 'Task Updated Successfull',
+            });
+
+        }).catch(err => {
+            setLoadingButton(false)
+            setIsModalOpen(false)
+            Modal.error({
+                title: err.code,
+                content: err.message,
+            });
+        })
+
+    }
+
     function createItem() {
         setLoadingButton(true)
 
@@ -76,7 +110,6 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
             setLoadingButton(false)
             setProgressItem("")
             setNameItem("")
-            console.log(res)
             getTodoItem()
             setIsModalOpen(false)
             notification["success"]({
@@ -214,6 +247,7 @@ export default function CardItem({ colorCard, titleGroup, description, idTodoGro
                 nameItem={nameItem}
                 isModalOpen={isModalOpen}
                 handleCancel={handleCancel}
+                updateItem={updateItem}
                 createItem={createItem}
                 setNameItem={setNameItem}
                 setProgressItem={setProgressItem}
